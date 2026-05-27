@@ -1,0 +1,9 @@
+{
+  "name": "stepright-ads-dashboard",
+  "version": "1.0.0",
+  "description": "Single-page StepRight ads dashboard toggling between Google Ads and Meta Ads views, reading from a shared Google Sheet via opensheet.elk.sh.",
+  "private": true,
+  "scripts": {
+    "dev": "python3 -m http.server 8000"
+  }
+}

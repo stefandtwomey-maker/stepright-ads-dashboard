@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="pageTitle">StepRight Ads Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:        #0F1B2D;
+      --surface:   #FFFFFF;
+      --card:      #F8FAFC;
+      --ink:       #0F1B2D;
+      --muted:     #64748B;
+      --accent:    #1EC6E5;
+      --accent-2:  #2563EB;
+      --good:      #10B981;
+      --warn:      #F59E0B;
+      --bad:       #EF4444;
+      --border:    #E2E8F0;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      background: #F1F5F9;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .header {
+      background: linear-gradient(135deg, var(--bg) 0%, #1E3A5F 100%);
+      color: white;
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .header .sub {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #94A3B8;
+    }
+    .badge {
+      background: rgba(30, 198, 229, 0.15);
+      border: 1px solid rgba(30, 198, 229, 0.4);
+      color: #67E8F9;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge.sample {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #FCD34D;
+    }
+    .badge::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 999px;
+      background: var(--good);
+      box-shadow: 0 0 8px var(--good);
+    }
+    .badge.sample::before { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+
+    .controls {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(15, 27, 45, 0.04);
+    }
+    .range-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .platform-toggle {
+      display: flex;
+      gap: 2px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 3px;
+    }
+    .platform-toggle button {
+      appearance: none;
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .platform-toggle button:hover { color: white; }
+    .platform-toggle button.active {
+      background: white;
+      color: var(--ink);
+    }
+    .platform-toggle .dot {
+      width: 8px; height: 8px; border-radius: 50%; background: currentColor;
+    }
+    .range-chip {
+      appearance: none;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--ink);
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .range-chip:hover { background: #F1F5F9; }
+    .range-chip.active {
+      background: var(--ink);
+      color: white;
+      border-color: var(--ink);
+    }
+    .custom-range {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+    .custom-range label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .custom-range input[type="date"] {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--ink);
+      background: white;
+    }
+    .custom-range button {
+      appearance: none;
+      background: var(--accent-2);
+      color: white;
+      border: none;
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .custom-range button:hover { background: #1d4ed8; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 3px rgba(15, 27, 45, 0.04);
+    }
+    .kpi-label {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      line-height: 1.1;
+    }
+    .kpi-delta {
+      margin-top: 8px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .delta-up   { color: var(--good); }
+    .delta-down { color: var(--bad);  }
+    .kpi-target {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .chart-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 3px rgba(15, 27, 45, 0.04);
+    }
+    .chart-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0 0 4px 0;
+    }
+    .chart-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .chart-canvas-wrap {
+      position: relative;
+      height: 240px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      text-align: left;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody td {
+      padding: 12px;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #F8FAFC; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .pill-good { background: #DCFCE7; color: #166534; }
+    .pill-warn { background: #FEF3C7; color: #92400E; }
+    .pill-bad  { background: #FEE2E2; color: #991B1B; }
+    .footer-note {
+      margin-top: 16px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .loading {
+      padding: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .chart-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="header">
+      <div>
+        <h1 id="dashTitle">StepRight Ads Dashboard</h1>
+        <div class="sub" id="periodLabel">Loading…</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div class="platform-toggle" id="platformToggle" role="tablist" aria-label="Platform"></div>
+        <div class="badge" id="liveBadge">Live</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="range-chips" id="rangeChips"></div>
+      <div class="custom-range" id="customRange" hidden>
+        <label>From <input type="date" id="customFrom"></label>
+        <label>To <input type="date" id="customTo"></label>
+        <button id="customApply">Apply</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <h3 class="chart-title">Leads &amp; Spend over time</h3>
+        <p class="chart-sub" id="trendSub">Daily leads (bars) vs daily spend (line)</p>
+        <div class="chart-canvas-wrap"><canvas id="trendChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-title">Lead share by campaign</h3>
+        <p class="chart-sub">Where leads came from</p>
+        <div class="chart-canvas-wrap"><canvas id="mixChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3 class="chart-title" style="margin-bottom: 12px;">Performance by campaign</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Campaign</th>
+            <th>Status</th>
+            <th class="num">Spend</th>
+            <th class="num">Clicks</th>
+            <th class="num">CTR</th>
+            <th class="num">Leads</th>
+            <th class="num">CPL</th>
+            <th class="num">Conv. Rate</th>
+          </tr>
+        </thead>
+        <tbody id="campaignTable">
+          <tr><td colspan="8" class="loading">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer-note" id="footerNote">
+      Source: Make.com → Google Sheet → this dashboard · Updated daily 06:00
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    //  CONFIG — StepRight Meta + Google Ads Dashboard
+    //  Sheet has two tabs: one for Google Ads, one for Meta.
+    //  Toggle at the top of the page switches the dashboard between them.
+    // ============================================================
+    const SHEET_ID    = '1H3qkvv-yYxAX53YmCIUWJPFtwypQh0JGTY4K4bJPLRA';
+    const CONFIG_TAB  = 'Config';
+    const PLATFORMS = {
+      google: {
+        id: 'google',
+        label: 'Google Ads',
+        tab: 'Google Ads Daily Log',
+        title: 'StepRight — Google Ads Dashboard',
+        accent: '#1A73E8',
+        hasPurchases: true
+      },
+      meta:   {
+        id: 'meta',
+        label: 'Meta Ads',
+        tab: 'Meta Ad Daily Daily Log',
+        title: 'StepRight — Meta Ads Dashboard',
+        accent: '#1877F2',
+        hasPurchases: false
+      }
+    };
+    let currentPlatform = (new URLSearchParams(location.search).get('platform') === 'meta') ? 'meta' : 'google';
+    const apiUrl = tab => `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(tab)}`;
+
+    const TARGETS = {
+      cpl: 35,
+      convRate: 0.04,
+      monthlyLeads: 150,
+      monthlyBudget: 5000
+    };
+
+    // ============================================================
+    //  DATE HELPERS
+    // ============================================================
+    const startOfDay = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+    const endOfDay   = d => { const x = new Date(d); x.setHours(23,59,59,999); return x; };
+    const addDays    = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+    const startOfMonth = d => { const x = new Date(d); x.setDate(1); x.setHours(0,0,0,0); return x; };
+    const endOfMonth   = d => { const x = startOfMonth(d); x.setMonth(x.getMonth() + 1); x.setMilliseconds(-1); return x; };
+    const fmtDate = d => d.toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: 'numeric' });
+
+    // ============================================================
+    //  DATE-RANGE PRESETS (Google-Ads-style)
+    //  Convention matches Facebook Ads: "Last N days" = N days ending
+    //  yesterday (today excluded as incomplete).
+    // ============================================================
+    const PRESETS = [
+      { id: 'today',     label: 'Today',        range: () => { const t = startOfDay(new Date()); return { from: t, to: endOfDay(t) }; } },
+      { id: 'yesterday', label: 'Yesterday',    range: () => { const y = addDays(startOfDay(new Date()), -1); return { from: y, to: endOfDay(y) }; } },
+      { id: '7',         label: 'Last 7 days',  range: () => { const t = startOfDay(new Date()); return { from: addDays(t, -7),  to: endOfDay(addDays(t, -1)) }; } },
+      { id: '14',        label: 'Last 14 days', range: () => { const t = startOfDay(new Date()); return { from: addDays(t, -14), to: endOfDay(addDays(t, -1)) }; } },
+      { id: '28',        label: 'Last 28 days', range: () => { const t = startOfDay(new Date()); return { from: addDays(t, -28), to: endOfDay(addDays(t, -1)) }; } },
+      { id: '30',        label: 'Last 30 days', range: () => { const t = startOfDay(new Date()); return { from: addDays(t, -30), to: endOfDay(addDays(t, -1)) }; } },
+      { id: 'mtd',       label: 'This month',   range: () => { const t = startOfDay(new Date()); return { from: startOfMonth(t), to: endOfDay(t) }; } },
+      { id: 'lastmo',    label: 'Last month',   range: () => { const t = startOfDay(new Date()); const lastMo = addDays(startOfMonth(t), -1); return { from: startOfMonth(lastMo), to: endOfDay(lastMo) }; } },
+      { id: 'all',       label: 'All time',     range: 'dynamic' },
+      { id: 'custom',    label: 'Custom',       isCustom: true }
+    ];
+
+    // ============================================================
+    //  STATE
+    // ============================================================
+    let currentPresetId = '30';
+    let customFrom = null, customTo = null;
+    let allNormRows = [];
+    let isLive = false;
+
+    // ============================================================
+    //  SAMPLE-DATA FALLBACK (used until the sheet has rows)
+    // ============================================================
+    function buildSampleRows() {
+      const isGoogle = currentPlatform === 'google';
+      const campaigns = isGoogle ? [
+        ['Search — Brand',                'Search',           'Active'],
+        ['Search — High-Intent Keywords', 'Search',           'Active'],
+        ['Performance Max — Sale',        'Performance Max',  'Active'],
+        ['Display — Retargeting',         'Display',          'Active'],
+        ['Shopping — Catalogue',          'Shopping',         'Active'],
+        ['Video — Awareness',             'Video',            'Paused'],
+      ] : [
+        ['Lead Gen — Cold Audience',      'Lead Generation',  'Active'],
+        ['Lead Gen — Lookalike 1%',       'Lead Generation',  'Active'],
+        ['Conversions — Retargeting',     'Conversions',      'Active'],
+        ['Traffic — Broad Interest',      'Traffic',          'Active'],
+        ['Engagement — Awareness',        'Engagement',       'Active'],
+        ['Reach — Brand Awareness',       'Reach',            'Paused'],
+      ];
+      const rows = [];
+      const today = new Date();
+      for (let d = 29; d >= 0; d--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - d);
+        const iso = date.toISOString().slice(0, 10);
+        campaigns.forEach(([name, type, status], idx) => {
+          const wkBoost = (date.getDay() === 0 || date.getDay() === 6) ? 0.7 : 1.0;
+          const base = [240, 180, 110, 150, 90, 50][idx];
+          const spend  = Math.round(base * wkBoost * (0.85 + Math.random() * 0.3));
+          const ctr    = [0.082, 0.054, 0.038, 0.028, 0.012, 0.009][idx];
+          const clicks = Math.max(1, Math.round(spend / [1.20, 1.80, 2.10, 2.50, 1.40, 1.10][idx]));
+          const impressions = Math.round(clicks / ctr);
+          const lr  = [0.085, 0.062, 0.048, 0.040, 0.018, 0.008][idx];
+          const leads = Math.round(clicks * lr);
+          rows.push({
+            'Date':        iso,
+            'Campaign':    name,
+            'Type':        type,
+            'Status':      status,
+            'Spend':       spend,
+            'Impressions': impressions,
+            'Clicks':      clicks,
+            'Leads':       leads
+          });
+        });
+      }
+      return rows;
+    }
+
+    // ============================================================
+    //  PARSING / FORMATTING HELPERS
+    // ============================================================
+    const num = v => {
+      if (v === null || v === undefined || v === '') return 0;
+      if (typeof v === 'number') return v;
+      const cleaned = String(v).replace(/[€$,\s]/g, '').replace(/^"|"$/g, '');
+      const n = parseFloat(cleaned);
+      return isNaN(n) ? 0 : n;
+    };
+
+    const fmtEur   = n => '€' + n.toLocaleString('en-IE', { maximumFractionDigits: 0 });
+    const fmtEur2  = n => '€' + n.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtPct   = n => (n * 100).toFixed(2) + '%';
+    const fmtPctPP = n => (n * 100).toFixed(1) + 'pp';
+    const fmtNum   = n => n.toLocaleString('en-IE');
+
+    function parseDateLoose(s) {
+      if (!s) return null;
+      if (/^\d{4}-\d{2}-\d{2}/.test(s)) return new Date(s);
+      const parts = String(s).split(/[\/-]/);
+      if (parts.length === 3 && parts[2].length === 4) return new Date(parts[2], parts[1] - 1, parts[0]);
+      const d = new Date(s);
+      return isNaN(d) ? null : d;
+    }
+
+    // ============================================================
+    //  NORMALIZE ROWS (case-insensitive header tolerance)
+    // ============================================================
+    function normalizeRows(rows) {
+      const get = (row, ...keys) => {
+        for (const k of keys) {
+          const found = Object.keys(row).find(rk => rk.toLowerCase().trim() === k.toLowerCase());
+          if (found && row[found] !== '') return row[found];
+        }
+        return '';
+      };
+      return rows.map(r => {
+        const d = parseDateLoose(get(r, 'Date'));
+        if (!d) return null;
+        return {
+          date: d,
+          campaign:    String(get(r, 'Campaign', 'Campaign Name') || '').trim(),
+          type:        String(get(r, 'Type', 'Campaign Type') || 'Other').trim(),
+          status:      String(get(r, 'Status') || 'Active').trim(),
+          spend:       num(get(r, 'Spend', 'Spend (EUR)', 'Cost')),
+          impressions: num(get(r, 'Impressions')),
+          clicks:      num(get(r, 'Clicks')),
+          leads:       num(get(r, 'Leads', 'Conversions'))
+        };
+      }).filter(Boolean);
+    }
+
+    // ============================================================
+    //  AGGREGATE WITHIN ARBITRARY DATE RANGE
+    //  Previous period = same length, ending the day before `from`.
+    // ============================================================
+    function aggregate(normRows, from, to) {
+      const rangeMs = to - from;
+      const prevTo   = new Date(from.getTime() - 1);
+      const prevFrom = new Date(prevTo.getTime() - rangeMs);
+
+      const inRange = (d, a, b) => d >= a && d <= b;
+      const current  = normRows.filter(r => inRange(r.date, from, to));
+      const previous = normRows.filter(r => inRange(r.date, prevFrom, prevTo));
+
+      const sumBy = (arr, key) => arr.reduce((a, r) => a + r[key], 0);
+      const totals = arr => ({
+        spend:       sumBy(arr, 'spend'),
+        impressions: sumBy(arr, 'impressions'),
+        clicks:      sumBy(arr, 'clicks'),
+        leads:       sumBy(arr, 'leads')
+      });
+      const cur = totals(current);
+      const prv = totals(previous);
+
+      // Per-day series across the active range
+      const days = Math.max(1, Math.ceil((endOfDay(to) - startOfDay(from)) / 86400000) + 1);
+      const byDay = {};
+      for (let i = 0; i < days; i++) {
+        const dt = addDays(startOfDay(from), i);
+        const key = dt.toISOString().slice(0, 10);
+        byDay[key] = { leads: 0, spend: 0, label: dt.toLocaleDateString('en-IE', { day: '2-digit', month: 'short' }) };
+      }
+      current.forEach(r => {
+        const key = r.date.toISOString().slice(0, 10);
+        if (byDay[key]) {
+          byDay[key].leads += r.leads;
+          byDay[key].spend += r.spend;
+        }
+      });
+      const trendLabels = Object.values(byDay).map(v => v.label);
+      const trendLeads  = Object.values(byDay).map(v => v.leads);
+      const trendSpend  = Object.values(byDay).map(v => Math.round(v.spend));
+
+      // Per-campaign roll-up
+      const byCampaign = {};
+      current.forEach(r => {
+        if (!r.campaign) return;
+        const c = byCampaign[r.campaign] ||= { name: r.campaign, type: r.type, status: r.status, spend: 0, impressions: 0, clicks: 0, leads: 0 };
+        c.spend       += r.spend;
+        c.impressions += r.impressions;
+        c.clicks      += r.clicks;
+        c.leads       += r.leads;
+      });
+      const campaigns = Object.values(byCampaign)
+        .map(c => ({
+          ...c,
+          ctr:      c.impressions > 0 ? c.clicks / c.impressions : 0,
+          cpl:      c.leads > 0 ? c.spend / c.leads : 0,
+          convRate: c.clicks > 0 ? c.leads / c.clicks : 0
+        }))
+        .sort((a, b) => b.spend - a.spend);
+
+      return { cur, prv, trendLabels, trendLeads, trendSpend, campaigns, days };
+    }
+
+    // ============================================================
+    //  RENDERERS
+    // ============================================================
+    function renderKPIs({ cur, prv, days }) {
+      const cpl      = cur.leads > 0 ? cur.spend / cur.leads : 0;
+      const prvCpl   = prv.leads > 0 ? prv.spend / prv.leads : 0;
+      const convRate = cur.clicks > 0 ? cur.leads / cur.clicks : 0;
+      const prvConv  = prv.clicks > 0 ? prv.leads / prv.clicks : 0;
+
+      const delta = (a, b) => (b > 0 ? (a / b - 1) : 0);
+      const deltaPct = (a, b) => (a - b);
+      const prevLabel = 'vs prev period';
+
+      const cards = [
+        {
+          label: 'Ad Spend',
+          value: fmtEur(cur.spend),
+          delta: delta(cur.spend, prv.spend),
+          deltaInverse: false,
+          target: `Budget: ${fmtEur(TARGETS.monthlyBudget)}/mo`
+        },
+        {
+          label: 'Leads',
+          value: fmtNum(cur.leads),
+          delta: delta(cur.leads, prv.leads),
+          deltaInverse: false,
+          target: `Target: ${TARGETS.monthlyLeads}/mo`
+        },
+        {
+          label: 'Cost per Lead',
+          value: cpl > 0 ? fmtEur2(cpl) : '—',
+          delta: prvCpl > 0 ? (cpl / prvCpl - 1) : 0,
+          deltaInverse: true,
+          target: `Target: ≤ ${fmtEur(TARGETS.cpl)}`
+        },
+        {
+          label: 'Conv. Rate',
+          value: fmtPct(convRate),
+          deltaPP: deltaPct(convRate, prvConv),
+          deltaInverse: false,
+          target: `Target: ≥ ${fmtPct(TARGETS.convRate)}`
+        }
+      ];
+
+      const grid = document.getElementById('kpiGrid');
+      grid.innerHTML = '';
+      cards.forEach(c => {
+        let deltaHtml = '';
+        if (c.deltaPP !== undefined) {
+          const positive = c.deltaPP >= 0;
+          const cls = positive ? 'delta-up' : 'delta-down';
+          const arrow = positive ? '▲' : '▼';
+          deltaHtml = `<div class="kpi-delta ${cls}">${arrow} ${fmtPctPP(Math.abs(c.deltaPP))} ${prevLabel}</div>`;
+        } else if (c.delta !== undefined && c.delta !== 0) {
+          const positive = c.delta >= 0;
+          const cls = (positive === !c.deltaInverse) ? 'delta-up' : 'delta-down';
+          const arrow = positive ? '▲' : '▼';
+          deltaHtml = `<div class="kpi-delta ${cls}">${arrow} ${(Math.abs(c.delta) * 100).toFixed(1)}% ${prevLabel}</div>`;
+        } else {
+          deltaHtml = `<div class="kpi-delta" style="color:#94A3B8">— ${prevLabel} N/A</div>`;
+        }
+        grid.insertAdjacentHTML('beforeend', `
+          <div class="card">
+            <div class="kpi-label">${c.label}</div>
+            <div class="kpi-value">${c.value}</div>
+            ${deltaHtml}
+            <div class="kpi-target">${c.target}</div>
+          </div>
+        `);
+      });
+    }
+
+    let trendChart, mixChart;
+
+    function renderCharts({ trendLabels, trendLeads, trendSpend, campaigns, days }) {
+      document.getElementById('trendSub').textContent =
+        `Daily leads (bars) vs daily spend (line) — ${days} day${days === 1 ? '' : 's'}`;
+
+      const ctx1 = document.getElementById('trendChart').getContext('2d');
+      if (trendChart) trendChart.destroy();
+      trendChart = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: trendLabels,
+          datasets: [
+            { type: 'bar',  label: 'Leads',     data: trendLeads, backgroundColor: 'rgba(30, 198, 229, 0.8)', borderRadius: 4, yAxisID: 'y'  },
+            { type: 'line', label: 'Spend (€)', data: trendSpend, borderColor: '#2563EB', backgroundColor: 'rgba(37, 99, 235, 0.1)', tension: 0.3, borderWidth: 2, pointRadius: 0, yAxisID: 'y1' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+          scales: {
+            y:  { position: 'left',  beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 } }, title: { display: true, text: 'Leads', font: { size: 10 } } },
+            y1: { position: 'right', beginAtZero: true, grid: { display: false },   ticks: { font: { size: 10 }, callback: v => '€' + v }, title: { display: true, text: 'Spend (€)', font: { size: 10 } } },
+            x:  { ticks: { font: { size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }, grid: { display: false } }
+          }
+        }
+      });
+
+      const ctx2 = document.getElementById('mixChart').getContext('2d');
+      if (mixChart) mixChart.destroy();
+      const topCampaigns = campaigns.slice(0, 6);
+      mixChart = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: topCampaigns.map(c => c.name.length > 28 ? c.name.slice(0, 26) + '…' : c.name),
+          datasets: [{
+            data: topCampaigns.map(c => c.leads),
+            backgroundColor: ['#1EC6E5', '#2563EB', '#7C3AED', '#10B981', '#F59E0B', '#EF4444'],
+            borderColor: '#FFFFFF',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '60%',
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 }, padding: 8 } } }
+        }
+      });
+    }
+
+    function renderTable({ campaigns }) {
+      const tbody = document.getElementById('campaignTable');
+      tbody.innerHTML = '';
+      if (campaigns.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="loading">No campaign data in this range.</td></tr>`;
+        return;
+      }
+      campaigns.forEach(c => {
+        const statusClass = c.status === 'Active' ? 'pill-good' : 'pill-warn';
+        const cplClass    = c.leads === 0 ? '' : (c.cpl <= TARGETS.cpl ? 'pill-good' : 'pill-bad');
+        const cplText     = c.leads === 0 ? '—' : fmtEur2(c.cpl);
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr>
+            <td><strong>${c.name}</strong></td>
+            <td><span class="pill ${statusClass}">${c.status}</span></td>
+            <td class="num">${fmtEur(c.spend)}</td>
+            <td class="num">${fmtNum(c.clicks)}</td>
+            <td class="num">${fmtPct(c.ctr)}</td>
+            <td class="num"><strong>${c.leads}</strong></td>
+            <td class="num"><span class="pill ${cplClass}">${cplText}</span></td>
+            <td class="num">${fmtPct(c.convRate)}</td>
+          </tr>
+        `);
+      });
+    }
+
+    function setBadge(mode) {
+      const el = document.getElementById('liveBadge');
+      const footer = document.getElementById('footerNote');
+      if (mode === 'live') {
+        el.textContent = 'Live';
+        el.classList.remove('sample');
+        footer.innerHTML = `Source: ${PLATFORMS[currentPlatform].label} → Make.com → <a href="https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit" target="_blank" style="color:inherit">Google Sheet</a> → this dashboard · Updated daily 06:00`;
+      } else {
+        el.textContent = 'Sample data';
+        el.classList.add('sample');
+        footer.innerHTML = `Showing sample data — sheet is empty or not shared publicly. <a href="https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit" target="_blank" style="color:inherit;text-decoration:underline">Open source sheet</a>.`;
+      }
+    }
+
+    // ============================================================
+    //  TITLE FROM CONFIG TAB
+    // ============================================================
+    let clientName = '';
+    function applyClientName(name) {
+      clientName = (name || '').trim();
+      refreshTitle();
+    }
+    function refreshTitle() {
+      const titleEl = document.getElementById('dashTitle');
+      const pageTitleEl = document.getElementById('pageTitle');
+      const platform = PLATFORMS[currentPlatform];
+      const base = clientName
+        ? `${clientName} — ${platform.label} Dashboard`
+        : platform.title;
+      titleEl.textContent = base;
+      pageTitleEl.textContent = base;
+    }
+
+    // ============================================================
+    //  RANGE SELECTOR — UI + state changes
+    // ============================================================
+    function buildChips() {
+      const wrap = document.getElementById('rangeChips');
+      wrap.innerHTML = '';
+      PRESETS.forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = 'range-chip' + (p.id === currentPresetId ? ' active' : '');
+        btn.textContent = p.label;
+        btn.dataset.id = p.id;
+        btn.addEventListener('click', () => selectPreset(p.id));
+        wrap.appendChild(btn);
+      });
+    }
+
+    function getActiveRange() {
+      const p = PRESETS.find(p => p.id === currentPresetId);
+      if (p.isCustom) {
+        const f = customFrom || addDays(startOfDay(new Date()), -30);
+        const t = customTo   || endOfDay(addDays(startOfDay(new Date()), -1));
+        return { from: f, to: t, label: 'Custom' };
+      }
+      if (p.id === 'all') {
+        if (allNormRows.length === 0) {
+          const t = startOfDay(new Date());
+          return { from: addDays(t, -90), to: endOfDay(addDays(t, -1)), label: p.label };
+        }
+        const minDate = allNormRows.reduce((m, r) => r.date < m ? r.date : m, allNormRows[0].date);
+        return { from: startOfDay(minDate), to: endOfDay(new Date()), label: p.label };
+      }
+      const r = p.range();
+      return { from: r.from, to: r.to, label: p.label };
+    }
+
+    function selectPreset(id) {
+      currentPresetId = id;
+      document.querySelectorAll('.range-chip').forEach(c =>
+        c.classList.toggle('active', c.dataset.id === id)
+      );
+      const customPanel = document.getElementById('customRange');
+      customPanel.hidden = id !== 'custom';
+      if (id === 'custom') {
+        if (!customFrom) customFrom = addDays(startOfDay(new Date()), -30);
+        if (!customTo)   customTo   = addDays(startOfDay(new Date()), -1);
+        document.getElementById('customFrom').value = customFrom.toISOString().slice(0, 10);
+        document.getElementById('customTo').value   = customTo.toISOString().slice(0, 10);
+        return; // wait for Apply
+      }
+      render();
+    }
+
+    function applyCustom() {
+      const f = document.getElementById('customFrom').value;
+      const t = document.getElementById('customTo').value;
+      if (!f || !t) return;
+      let from = startOfDay(new Date(f));
+      let to   = endOfDay(new Date(t));
+      if (from > to) [from, to] = [to, from];
+      customFrom = from;
+      customTo = to;
+      render();
+    }
+
+    function render() {
+      const { from, to, label } = getActiveRange();
+      const agg = aggregate(allNormRows, from, to);
+      document.getElementById('periodLabel').textContent =
+        `${label} · ${fmtDate(from)} → ${fmtDate(to)}`;
+      renderKPIs(agg);
+      renderCharts(agg);
+      renderTable(agg);
+    }
+
+    // ============================================================
+    //  FETCH + BOOT
+    // ============================================================
+    async function fetchConfig() {
+      try {
+        const res = await fetch(apiUrl(CONFIG_TAB), { cache: 'no-cache' });
+        if (!res.ok) return {};
+        const json = await res.json();
+        const map = {};
+        if (Array.isArray(json)) {
+          json.forEach(row => {
+            const k = (row.Key || row.key || '').trim();
+            if (k) map[k] = row.Value || row.value || '';
+          });
+        }
+        return map;
+      } catch (e) {
+        console.warn('Config fetch failed:', e);
+        return {};
+      }
+    }
+
+    async function fetchData() {
+      try {
+        const res = await fetch(apiUrl(PLATFORMS[currentPlatform].tab), { cache: 'no-cache' });
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json) && json.length > 0) return { rows: json, live: true };
+        }
+      } catch (e) {
+        console.warn('Data fetch failed:', e);
+      }
+      return { rows: buildSampleRows(), live: false };
+    }
+
+    function buildPlatformToggle() {
+      const wrap = document.getElementById('platformToggle');
+      wrap.innerHTML = '';
+      Object.values(PLATFORMS).forEach(p => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.role = 'tab';
+        btn.innerHTML = `<span class="dot" style="background:${p.accent}"></span>${p.label}`;
+        btn.className = currentPlatform === p.id ? 'active' : '';
+        btn.addEventListener('click', () => switchPlatform(p.id));
+        wrap.appendChild(btn);
+      });
+    }
+
+    async function switchPlatform(id) {
+      if (id === currentPlatform) return;
+      currentPlatform = id;
+      const url = new URL(location.href);
+      url.searchParams.set('platform', id);
+      history.replaceState(null, '', url);
+      buildPlatformToggle();
+      refreshTitle();
+      // Re-fetch and re-render with new tab
+      const data = await fetchData();
+      allNormRows = normalizeRows(data.rows);
+      isLive = data.live;
+      setBadge(isLive ? 'live' : 'sample');
+      render();
+    }
+
+    async function boot() {
+      buildPlatformToggle();
+      refreshTitle();
+      const [config, data] = await Promise.all([fetchConfig(), fetchData()]);
+      applyClientName(config['Client Name']);
+      allNormRows = normalizeRows(data.rows);
+      isLive = data.live;
+      setBadge(isLive ? 'live' : 'sample');
+      buildChips();
+      document.getElementById('customApply').addEventListener('click', applyCustom);
+      render();
+    }
+    boot();
+  </script>
+</body>
+</html>
