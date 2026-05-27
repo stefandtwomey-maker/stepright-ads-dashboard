@@ -27,7 +27,13 @@ Sibling-of: [`notion-leadgen-dashboard`](https://github.com/stefandtwomey-maker/
 ### Google Ads Daily Log (A–I)
 `Date | Campaign | Type | Status | Spend | Impressions | Clicks | Leads | Purchases`
 
-Google tracks both lead conversions AND purchase events. In the Make scenario `leads_int = metrics.conversions` (primary conversion actions) and `purchases_int = metrics.allConversions − metrics.conversions` (everything else). This split only works correctly if your Google Ads conversion actions are tagged primary (lead form) vs secondary (purchase). Refine in `StepRight Google Ads Report` Make scenario if your setup differs.
+All three of `Submit lead form`, `Calls from ads (1)`, and `Purchase-stepright.ie` are tagged **Primary** in Google Ads (the user keeps them all primary for Smart Bidding). To split conversions correctly, the Make scenario uses **two `Run a Custom Report` modules**:
+- Module 1 (GAQL): campaign-level totals — returns one row per (campaign, day) with total spend, impressions, clicks, conversions.
+- Module 2 (GAQL parameterised by module 1 row): filtered to `segments.conversion_action_name = 'Purchase-stepright.ie'` — returns 0 or 1 row.
+
+Then in Set Variables: `purchases_int = ifempty(M2.conversions, 0)` and `leads_int = M1.conversions − purchases_int`.
+
+> **Gotcha:** If the purchase action name ever changes in Google Ads, edit the literal `'Purchase-stepright.ie'` inside the Module 2 GAQL query. Also if you add a fourth primary action, you'll over-count leads — re-tag or extend the split logic.
 
 ### Meta Ad Daily Daily Log (A–H)
 `Date | Campaign | Type | Status | Spend | Impressions | Clicks | Leads`
