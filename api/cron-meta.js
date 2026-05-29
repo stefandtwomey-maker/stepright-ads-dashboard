@@ -38,8 +38,8 @@ export default async function handler(req, res) {
 }
 
 async function fetchMetaRows() {
-  const token = process.env.FB_ACCESS_TOKEN;
-  const acct = process.env.META_AD_ACCOUNT_ID;
+  const token = process.env.FB_ACCESS_TOKEN || process.env.fb_access_token;
+  const acct = process.env.META_AD_ACCOUNT_ID || process.env.meta_ad_account_id;
   if (!token || !acct) throw new Error('Missing FB_ACCESS_TOKEN or META_AD_ACCOUNT_ID');
 
   const url = new URL(`https://graph.facebook.com/v19.0/act_${acct}/insights`);
@@ -76,9 +76,11 @@ async function fetchMetaRows() {
 }
 
 async function appendRows(rows) {
-  const keyJson = Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_KEY_B64, 'base64').toString('utf8');
+  const keyB64 = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_B64 || process.env.google_service_account_key_b64;
+  if (!keyB64) throw new Error('Missing GOOGLE_SERVICE_ACCOUNT_KEY_B64');
+  const keyJson = Buffer.from(keyB64, 'base64').toString('utf8');
   const key = JSON.parse(keyJson);
-  const sheetId = process.env.STEPRIGHT_SHEET_ID;
+  const sheetId = process.env.STEPRIGHT_SHEET_ID || process.env.stepright_sheet_id;
   if (!sheetId) throw new Error('Missing STEPRIGHT_SHEET_ID');
 
   const jwt = new google.auth.JWT({
