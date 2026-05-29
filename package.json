@@ -1,9 +1,13 @@
 {
   "name": "stepright-ads-dashboard",
   "version": "1.0.0",
-  "description": "Single-page StepRight ads dashboard toggling between Google Ads and Meta Ads views, reading from a shared Google Sheet via opensheet.elk.sh.",
+  "description": "Single-page StepRight ads dashboard with Google/Meta toggle. Includes Vercel cron that pulls Meta Ads insights daily via FB Graph API and appends to the Google Sheet.",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "python3 -m http.server 8000"
+  },
+  "dependencies": {
+    "googleapis": "^144.0.0"
   }
 }
