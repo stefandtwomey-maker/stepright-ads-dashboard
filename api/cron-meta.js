@@ -93,7 +93,7 @@ async function appendRows(rows) {
   await sheets.spreadsheets.values.append({
     spreadsheetId: sheetId,
     range: `${META_TAB}!A2`,
-    valueInputOption: 'USER_ENTERED',
+    valueInputOption: 'RAW',
     insertDataOption: 'INSERT_ROWS',
     requestBody: { values: rows }
   });
